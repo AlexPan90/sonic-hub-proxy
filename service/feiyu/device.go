@@ -115,10 +115,10 @@ type ListPhoneDeviceResponse struct {
 }
 
 //ListPhoneDevice
-func ListPhoneDevice(requestId string) (l []*PhoneDevice, err error) {
+func ListPhoneDevice() (l []*PhoneDevice, err error) {
 
 	headers := map[string]string{
-		"X-REQUEST-ID": requestId,
+		"X-REQUEST-ID": uuid.New().String(),
 	}
 
 	respBody, err := C.Get("/rpa/api/v1/phone_device", headers)
