@@ -30,6 +30,10 @@ func initLibrary(
 		return err
 	}
 
+	if err := device.MonitorFeiyuDevices(cfg, logger); err != nil {
+		return err
+	}
+
 	go agent.WatchHubSonicDevices(cfg, logger)
 
 	go device.MonitorSonicDevices(cfg, logger)

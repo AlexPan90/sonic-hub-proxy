@@ -12,6 +12,21 @@ import (
 	"github.com/go-kit/log/level"
 )
 
+//MonitorFeiyuDevices
+func MonitorFeiyuDevices(cfg *config.SonicHubProxyConfig, logger log.Logger) error {
+	l, err := feiyu.ListPhoneDevice()
+	if err != nil {
+		level.Error(logger).Log("msg", "Load feiyu device error", "err", err)
+		return err
+	}
+
+	for i := 0; i < len(l); i++ {
+		feiyu.PhoneDevices.Store(l[i].LocalRegUUID, l[i])
+	}
+
+	return nil
+}
+
 //MonitorSonicDevices
 func MonitorSonicDevices(cfg *config.SonicHubProxyConfig, logger log.Logger) {
 	ticker := time.NewTicker(time.Duration(cfg.SonicDevice.MonitorIntervalSeconds) * time.Second)
@@ -23,9 +38,20 @@ func MonitorSonicDevices(cfg *config.SonicHubProxyConfig, logger log.Logger) {
 			d := value.(*agent.SonicDevice)
 
 			if len(d.RemoteFYUUID) <= 0 {
-				if err := CreatePhoneDevice(d); err != nil {
-					level.Error(logger).Log("msg", "Failed to create phone device to feiyu.", "err", err.Error())
+				phoneValue, isOK := feiyu.PhoneDevices.Load(d.UDID)
+				if !isOK {
+					if err := CreatePhoneDevice(d); err != nil {
+						level.Error(logger).Log("msg", "Failed to create phone device to feiyu.", "err", err.Error())
+					}
+				} else {
+					phone := phoneValue.(*feiyu.PhoneDevice)
+
+					d.RemoteFYUUID = phone.UUID
+					if err := d.UpdateRemoteFYUUID(); err != nil {
+						level.Error(logger).Log("msg", "Failed to update phone device to feiyu.", "err", err.Error())
+					}
 				}
+
 				level.Info(logger).Log("msg", "Device added remotely successfully.", "remote_feiyu_uuid", d.RemoteFYUUID)
 
 				if len(d.RemoteFYUUID) > 0 {
