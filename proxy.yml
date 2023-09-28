@@ -1,5 +1,11 @@
-sonic_device_conf:
-  hub_agent_key: 1
-  reload_interval_seconds: 30
-  monitor_interval_seconds: 10
-  heartbeat_interval_seconds: 5
+services:
+  sonic:
+    hub_agent_key: 1
+    hub_request_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYWRtaW4iLCJjM2Y3NDAzYy0yM2FjLTQ5MDMtOGZhYy0wNDY4NmJlNDlhNDQiXSwiZXhwIjoxNjk1NzQxMTc1fQ.Nk8fkL5QKNk4HfTMhSGc0JXQFeyKd411tIcNvIJD1CE"
+    reload_interval_seconds: 30
+    monitor_interval_seconds: 10
+    heartbeat_interval_seconds: 5
+
+  feiyu:
+    phone_group_uuid: "b04bb6f4-79d7-4675-8afe-199993fe93f1"
+    reload_task_interval_seconds: 30

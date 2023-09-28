@@ -36,9 +36,9 @@ type ListTaskDataResponse struct {
 
 func ListTaskData(requestId, taskUUID string) ([]*TaskData, error) {
 	headers := map[string]string{
-		"X-REQUEST-ID": requestId,
-		"Content-Type": "application/json",
-		"Accept":       "*/*",
+		HEADER_X_REQUEST_ID: requestId,
+		"Content-Type":      "application/json",
+		"Accept":            "*/*",
 	}
 
 	apiURL := fmt.Sprintf("/rpa/api/v1/device_task_data/?task_uuid=%+v", taskUUID)

@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"sonic-hub-proxy/config"
-
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	_ "github.com/go-sql-driver/mysql"
@@ -24,15 +22,13 @@ const (
 
 var (
 	Client *Agent
-
-	defaultApiBaseURL = "http://192.168.1.15:3000%s"
-
-	defaultDSN = "root:123456@tcp(127.0.0.1:3306)/sonic?charset=utf8&loc=Asia%2FShanghai"
 )
 
 //Agent
 type Agent struct {
 	client *http.Client
+
+	cfg *SonicServiceConfig
 
 	DB *xorm.Engine
 
@@ -40,7 +36,7 @@ type Agent struct {
 }
 
 //NewClientWithConfig
-func NewClientWithConfig(cfg *config.SonicHubProxyConfig, logger log.Logger) (*Agent, error) {
+func NewClientWithConfig(cfg *SonicServiceConfig, logger log.Logger) (*Agent, error) {
 	c := &Agent{
 		logger: logger,
 	}
@@ -71,6 +67,8 @@ func NewClientWithConfig(cfg *config.SonicHubProxyConfig, logger log.Logger) (*A
 
 	c.DB = conn
 
+	c.cfg = cfg
+
 	Client = c
 
 	return c, nil
@@ -90,7 +88,7 @@ func NewXormEngine() (*xorm.Engine, error) {
 
 func (a *Agent) Get(apiURL string, headers map[string]string) ([]byte, error) {
 
-	apiURL = fmt.Sprintf(defaultApiBaseURL, apiURL)
+	apiURL = fmt.Sprintf(a.cfg.Endpoint, apiURL)
 
 	req, err := http.NewRequest(http.MethodGet, apiURL, nil)
 	if err != nil {
@@ -121,7 +119,7 @@ func (a *Agent) Get(apiURL string, headers map[string]string) ([]byte, error) {
 
 func (a *Agent) Put(apiURL string, headers map[string]string, data []byte) ([]byte, error) {
 
-	apiURL = fmt.Sprintf(defaultApiBaseURL, apiURL)
+	apiURL = fmt.Sprintf(a.cfg.Endpoint, apiURL)
 
 	level.Debug(a.logger).Log("method", http.MethodPut, "request_url", apiURL, "request_body", string(data))
 

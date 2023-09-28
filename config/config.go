@@ -6,6 +6,9 @@ import (
 	_ "os"
 	_ "strings"
 
+	"sonic-hub-proxy/service/agent"
+	"sonic-hub-proxy/service/feiyu"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -13,18 +16,16 @@ const (
 	HEADER_X_REQUEST_ID = "X-Request-ID"
 )
 
-type SonicDeviceConfig struct {
-	HubAgentKey              int64    `yaml:"hub_agent_key"`
-	ExcludeDevices           []string `yaml:"exclude_devices"`
-	ReloadIntervalSeconds    int      `yaml:"reload_interval_seconds"`
-	MonitorIntervalSeconds   int      `yaml:"monitor_interval_seconds"`
-	HeartbeatIntervalSeconds int      `yaml:"heartbeat_interval_seconds"`
+type SonicHubServicesConfig struct {
+	Sonic *agent.SonicServiceConfig `yaml:"sonic"`
+	Feiyu *feiyu.FeiyuServiceConfig `yaml:"feiyu"`
 }
 
+//SonicHubProxyConfig
 type SonicHubProxyConfig struct {
-	Filename    string             `yaml:"filename"`
-	RateLimit   float64            `yaml:"rate_limit"`
-	SonicDevice *SonicDeviceConfig `yaml:"sonic_device_conf"`
+	Filename  string                 `yaml:"filename"`
+	RateLimit float64                `yaml:"rate_limit"`
+	Services  SonicHubServicesConfig `yaml:"services"`
 }
 
 //NewConfig
@@ -52,7 +53,15 @@ func (c *SonicHubProxyConfig) LoadFile(filename string) error {
 	return nil
 }
 
-func (c *SonicHubProxyConfig) check() (err error) {
+func (c *SonicHubProxyConfig) check() error {
+	if err := c.Services.Sonic.Check(); err != nil {
+		return err
+	}
+
+	if err := c.Services.Feiyu.Check(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
