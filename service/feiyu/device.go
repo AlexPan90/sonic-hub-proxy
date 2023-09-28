@@ -34,15 +34,39 @@ type PhoneDevice struct {
 
 //Heartbeat
 func (d *PhoneDevice) Heartbeat() error {
+	headers := map[string]string{
+		HEADER_X_REQUEST_ID: uuid.New().String(),
+		"Content-Type":      "application/json",
+		"Accept":            "*/*",
+	}
+
+	apiURL := fmt.Sprintf("/rpa/api/v1/device_heart_beat/%+v/", d.UUID)
+
+	body := map[string]interface{}{
+		"id": d.ID,
+	}
+
+	bodyJSON, err := jsoniter.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	respBody, err := C.Put(apiURL, headers, bodyJSON)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(respBody))
+
 	return nil
 }
 
 //Reported
 func (d *PhoneDevice) Reported() (string, error) {
 	headers := map[string]string{
-		"X-REQUEST-ID": uuid.New().String(),
-		"Content-Type": "application/json",
-		"Accept":       "*/*",
+		HEADER_X_REQUEST_ID: uuid.New().String(),
+		"Content-Type":      "application/json",
+		"Accept":            "*/*",
 	}
 
 	t := time.Now().Format(time.RFC3339Nano)
@@ -87,14 +111,14 @@ func (d *PhoneDevice) Reported() (string, error) {
 	return data.UUID, nil
 }
 
-func GetPhoneDevice(requestId, uuid string) (PhoneDevice, error) {
+func GetPhoneDevice(deviceUUID string) (PhoneDevice, error) {
 	headers := map[string]string{
-		"X-REQUEST-ID": requestId,
+		HEADER_X_REQUEST_ID: uuid.New().String(),
 	}
 
 	var phone PhoneDevice
 
-	respBody, err := C.Get(fmt.Sprintf("/rpa/api/v1/phone_device/%+v/", uuid), headers)
+	respBody, err := C.Get(fmt.Sprintf("/rpa/api/v1/phone_device/%+v/", deviceUUID), headers)
 	if err != nil {
 		return phone, err
 	}
@@ -118,7 +142,7 @@ type ListPhoneDeviceResponse struct {
 func ListPhoneDevice() (l []*PhoneDevice, err error) {
 
 	headers := map[string]string{
-		"X-REQUEST-ID": uuid.New().String(),
+		HEADER_X_REQUEST_ID: uuid.New().String(),
 	}
 
 	respBody, err := C.Get("/rpa/api/v1/phone_device", headers)

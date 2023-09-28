@@ -19,9 +19,9 @@ type TaskTemplate struct {
 //GetTaskTemplate
 func GetTaskTemplate(requestId string, templateId int64) (TaskTemplate, error) {
 	headers := map[string]string{
-		"X-REQUEST-ID": requestId,
-		"Content-Type": "application/json",
-		"Accept":       "*/*",
+		HEADER_X_REQUEST_ID: requestId,
+		"Content-Type":      "application/json",
+		"Accept":            "*/*",
 	}
 
 	var template TaskTemplate

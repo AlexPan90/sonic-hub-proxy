@@ -22,11 +22,15 @@ func initLibrary(
 	cfg *config.SonicHubProxyConfig,
 	logger log.Logger,
 ) error {
-	if _, err := agent.NewClientWithConfig(cfg, logger); err != nil {
+	if _, err := agent.NewClientWithConfig(cfg.Services.Sonic, logger); err != nil {
 		return err
 	}
 
-	if err := feiyu.NewClientWithConfig(cfg, logger); err != nil {
+	if err := feiyu.NewClientWithConfig(cfg.Services.Feiyu, logger); err != nil {
+		return err
+	}
+
+	if err := feiyu.CheckPhoneGroup(); err != nil {
 		return err
 	}
 
@@ -34,9 +38,9 @@ func initLibrary(
 		return err
 	}
 
-	go agent.WatchHubSonicDevices(cfg, logger)
+	go agent.WatchHubSonicDevices(cfg.Services.Sonic, logger)
 
-	go device.MonitorSonicDevices(cfg, logger)
+	go device.MonitorSonicDevices(cfg.Services.Sonic, logger)
 
 	go timer.Task(logger)
 	return nil

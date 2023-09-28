@@ -4,32 +4,24 @@ import (
 	"fmt"
 	"os"
 	"testing"
-	"time"
 
 	"sonic-hub-proxy/config"
 
-	"github.com/alecthomas/kingpin/v2"
 	_ "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/google/uuid"
 	"github.com/prometheus/common/promlog"
-	"github.com/prometheus/common/promlog/flag"
 )
 
 func init() {
-	s := time.Now().Unix()
-	fmt.Println(s)
+	configFile := "../../proxy.yml"
 
 	promlogConfig := &promlog.Config{}
-
-	flag.AddFlags(kingpin.CommandLine, promlogConfig)
-	kingpin.HelpFlag.Short('h')
-	kingpin.Parse()
 
 	logger := promlog.New(promlogConfig)
 
 	proxyConf := config.NewConfig()
-	if err := proxyConf.LoadFile(*configFile); err != nil {
+	if err := proxyConf.LoadFile(configFile); err != nil {
 		level.Error(logger).Log("msg", "Load config error", "err", err)
 		os.Exit(1)
 	} else {
@@ -39,12 +31,28 @@ func init() {
 	NewClientWithConfig(proxyConf, logger)
 }
 
+//TestHeartbeat
+//CMD: go test -run TestHeartbeat -v
+func TestHeartbeat(t *testing.T) {
+	uuid := "31eb908f-6466-4904-abfa-081417caf12d"
+	device, err := GetPhoneDevice(uuid)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := device.Heartbeat(); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(device)
+}
+
 //TestListPhoneDevice
 //CMD: go test -run TestListPhoneDevice -v
 func TestListPhoneDevice(t *testing.T) {
-	requestID := uuid.New().String()
-
-	devices, err := ListPhoneDevice(requestID)
+	devices, err := ListPhoneDevice()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -57,9 +65,8 @@ func TestListPhoneDevice(t *testing.T) {
 //TestGetPhoneDevice
 //CMD: go test -run TestGetPhoneDevice -v
 func TestGetPhoneDevice(t *testing.T) {
-	requestID := uuid.New().String()
 	uuid := "177b3c01-8819-4ad8-afdd-3017b18db9a3"
-	device, err := GetPhoneDevice(requestID, uuid)
+	device, err := GetPhoneDevice(uuid)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -175,4 +182,39 @@ func TestGetTaskTemplate(t *testing.T) {
 
 	fmt.Println(template)
 	return
+}
+
+//TestListPhoneGroup
+//CMD: go test -run TestListPhoneGroup -v
+func TestListPhoneGroup(t *testing.T) {
+	l, err := ListPhoneGroup()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, v := range l {
+		fmt.Println(*v)
+	}
+}
+
+//TestCreatePhoneGroup
+//CMD: go test -run TestCreatePhoneGroup -v
+func TestCreatePhoneGroup(t *testing.T) {
+	if err := CreatePhoneGroup(); err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
+//TestGetPhoneGroup
+//CMD: go test -run TestGetPhoneGroup -v
+func TestGetPhoneGroup(t *testing.T) {
+	g, err := GetPhoneGroup("48f532f5-3bb8-4349-a0c4-7cc7bd821781")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(g)
 }

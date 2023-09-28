@@ -6,8 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"sonic-hub-proxy/config"
-
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 )
@@ -147,20 +145,20 @@ func ListSonicDevice(agentID int64) (l []*SonicDevice, err error) {
 }
 
 //WatchHubSonicDevices
-func WatchHubSonicDevices(cfg *config.SonicHubProxyConfig, logger log.Logger) error {
+func WatchHubSonicDevices(cfg *SonicServiceConfig, logger log.Logger) error {
 
-	ticker := time.NewTicker(time.Duration(cfg.SonicDevice.ReloadIntervalSeconds) * time.Second)
+	ticker := time.NewTicker(time.Duration(cfg.ReloadIntervalSeconds) * time.Second)
 	defer ticker.Stop()
 
 	for {
 		level.Info(logger).Log("msg", "Start watching sonic device")
-		l, err := ListSonicDevice(cfg.SonicDevice.HubAgentKey)
+		l, err := ListSonicDevice(cfg.HubAgentKey)
 		if err != nil {
 			level.Error(logger).Log("msg", "Load sonic device error", "err", err)
 		}
 
 		for i := 0; i < len(l); i++ {
-			l[i].reloadInterval = time.Duration(cfg.SonicDevice.HeartbeatIntervalSeconds)
+			l[i].reloadInterval = time.Duration(cfg.HeartbeatIntervalSeconds)
 			l[i].ctx = context.TODO()
 			l[i].logger = logger
 

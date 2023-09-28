@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"sonic-hub-proxy/config"
-
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 )
@@ -22,18 +20,17 @@ const (
 
 var (
 	C *Client
-
-	defaultBaseURL = "https://backend23.feiyu.ai%s"
 )
 
 type Client struct {
 	client *http.Client
+	cfg    *FeiyuServiceConfig
 
 	logger log.Logger
 }
 
 //NewClientWithConfig
-func NewClientWithConfig(cfg *config.SonicHubProxyConfig, logger log.Logger) error {
+func NewClientWithConfig(cfg *FeiyuServiceConfig, logger log.Logger) error {
 	c := &Client{
 		logger: logger,
 	}
@@ -57,13 +54,15 @@ func NewClientWithConfig(cfg *config.SonicHubProxyConfig, logger log.Logger) err
 		Timeout: time.Duration(1) * time.Second,
 	}
 
+	c.cfg = cfg
+
 	C = c
 
 	return nil
 }
 
 func (c *Client) Patch(apiURL string, headers map[string]string, data []byte) ([]byte, error) {
-	apiURL = fmt.Sprintf(defaultBaseURL, apiURL)
+	apiURL = fmt.Sprintf(c.cfg.Endpoint, apiURL)
 
 	body := bytes.NewBuffer(data)
 
@@ -93,7 +92,7 @@ func (c *Client) Patch(apiURL string, headers map[string]string, data []byte) ([
 }
 
 func (c *Client) Put(apiURL string, headers map[string]string, data []byte) ([]byte, error) {
-	apiURL = fmt.Sprintf(defaultBaseURL, apiURL)
+	apiURL = fmt.Sprintf(c.cfg.Endpoint, apiURL)
 
 	body := bytes.NewBuffer(data)
 
@@ -124,7 +123,7 @@ func (c *Client) Put(apiURL string, headers map[string]string, data []byte) ([]b
 
 func (c *Client) Post(apiURL string, headers map[string]string, data []byte) ([]byte, error) {
 
-	apiURL = fmt.Sprintf(defaultBaseURL, apiURL)
+	apiURL = fmt.Sprintf(c.cfg.Endpoint, apiURL)
 
 	body := bytes.NewBuffer(data)
 
@@ -155,7 +154,7 @@ func (c *Client) Post(apiURL string, headers map[string]string, data []byte) ([]
 
 func (c *Client) Get(apiURL string, headers map[string]string) ([]byte, error) {
 
-	apiURL = fmt.Sprintf(defaultBaseURL, apiURL)
+	apiURL = fmt.Sprintf(c.cfg.Endpoint, apiURL)
 
 	level.Debug(c.logger).Log("method", http.MethodGet, "request_url", apiURL)
 

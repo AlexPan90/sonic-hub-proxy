@@ -28,8 +28,8 @@ func MonitorFeiyuDevices(cfg *config.SonicHubProxyConfig, logger log.Logger) err
 }
 
 //MonitorSonicDevices
-func MonitorSonicDevices(cfg *config.SonicHubProxyConfig, logger log.Logger) {
-	ticker := time.NewTicker(time.Duration(cfg.SonicDevice.MonitorIntervalSeconds) * time.Second)
+func MonitorSonicDevices(cfg *agent.SonicServiceConfig, logger log.Logger) {
+	ticker := time.NewTicker(time.Duration(cfg.MonitorIntervalSeconds) * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -61,7 +61,7 @@ func MonitorSonicDevices(cfg *config.SonicHubProxyConfig, logger log.Logger) {
 
 			level.Info(logger).Log("msg", fmt.Sprintf("reload %s instances every %d seconds",
 				d.Name,
-				cfg.SonicDevice.MonitorIntervalSeconds,
+				cfg.MonitorIntervalSeconds,
 			))
 
 			return true
@@ -86,7 +86,7 @@ func CreatePhoneDevice(d *agent.SonicDevice) error {
 		OS:           d.OSName(),
 		OsVersion:    d.Version,
 		AppVersion:   "v1.0",
-		PhoneNumber:  "13520921231",
+		PhoneNumber:  "13588888888",
 	}
 
 	remoteFYUUID, err := p.Reported()
