@@ -66,13 +66,13 @@ func main() {
 	promlogConfig := &promlog.Config{}
 
 	flag.AddFlags(kingpin.CommandLine, promlogConfig)
-	kingpin.Version(version.Print("ksc_exporter"))
+	kingpin.Version(version.Print("sonic-hub-proxy"))
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
 	logger := promlog.New(promlogConfig)
 
-	level.Info(logger).Log("msg", "Starting ksc_exporter", "version", version.Info())
+	level.Info(logger).Log("msg", "Starting sonic-hub-proxy", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "build_context", version.BuildContext())
 
 	proxyConf := config.NewConfig()
