@@ -60,9 +60,6 @@ func (i *DeviceTasks) Run() {
 		go func(deviceID string, pendingTasks []*feiyu.Task) {
 			defer func() {
 				if e := recover(); e != nil {
-					// log.Error(`models="(GetMetrics)" msg="Get graph metrics occurred on panic." err="%+v"`,
-					// 	e,
-					// )
 				}
 				defer wg.Done()
 			}()
@@ -120,11 +117,20 @@ func ParseTasks(tasks []*feiyu.Task, logger log.Logger) {
 	for i := 0; i < tasksCount; i++ {
 		// 1.任务状态不是未执行状态，则不处理，直接忽略
 		if tasks[i].TaskStatus != feiyu.TaskStatus_Pendding {
+			level.Debug(logger).Log("msg", "Abnormal task status.",
+				"task_name", tasks[i].TaskName,
+				"task_status", tasks[i].TaskStatus,
+			)
 			continue
 		}
 
 		value, isOK := agent.LocalPhoneDevices.Load(tasks[i].AssignedToUUID)
 		if !isOK {
+			level.Error(logger).Log("msg", "Not found phone device in hub.",
+				"task_id", tasks[i].ID,
+				"task_name", tasks[i].TaskName,
+				"assigned_to_uuid", tasks[i].AssignedToUUID,
+			)
 			continue
 		}
 		device := value.(*agent.SonicDevice)
