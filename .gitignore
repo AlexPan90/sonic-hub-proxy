@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+
+# Sonic service logs
+sonic-server/logs/*
+sonic-database/mysql/*
