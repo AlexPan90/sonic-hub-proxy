@@ -9,14 +9,14 @@ fi
 cur_dir=$(pwd)
 Stack=$1
 if [ "${Stack}" = "" ]; then
-    Stack="lnmp"
+    Stack="sonic-hub-proxy"
 else
     Stack=$1
 fi
 
 SONIC_HUB_Version='1.0'
-. include/init.sh
-. include/main.sh
+. script/init.sh
+. script/main.sh
 
 clear
 echo "+------------------------------------------------------+"
@@ -27,12 +27,8 @@ Start()
 {
     Check_Docker
     Start_SonicDatabase
-    # Start_SonicServer
+    Start_SonicServer
+    Start_SonicAgent
 }
 
 Start
-
-#Install Docker
-#Install MySQL
-#Start Sonic-server & sonic-agent
-#Insert Command 

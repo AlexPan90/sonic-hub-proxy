@@ -1,7 +1,7 @@
 services:
   sonic:
     hub_agent_key: 1
-    hub_request_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYWRtaW4iLCJjM2Y3NDAzYy0yM2FjLTQ5MDMtOGZhYy0wNDY4NmJlNDlhNDQiXSwiZXhwIjoxNjk1NzQxMTc1fQ.Nk8fkL5QKNk4HfTMhSGc0JXQFeyKd411tIcNvIJD1CE"
+    hub_request_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYWRtaW4iLCJjY2NiODBmMS1mYmYzLTQ0ZDItYThmMC00Y2QxZGIwNTU3ZmMiXSwiZXhwIjoxNjk5MTcyNTAyfQ.M-QtQcMpq5sjNXD7MqaJVWhz8WzbxOqKbyqfEkpca_k"
     reload_interval_seconds: 30
     monitor_interval_seconds: 10
     heartbeat_interval_seconds: 5
