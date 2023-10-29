@@ -25,10 +25,14 @@ echo "+------------------------------------------------------+"
 
 Start()
 {
+    sonic_server_token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYWRtaW4xMjMiLCI5NjNjMTQxYi1kN2IwLTQ3MGMtYjU5NS05NjgxY2Q3MGE1YzYiXSwiZXhwIjoxNjk5NzcyMTI0fQ.XArq_T_7zZj1Mntg9yIPVzvpScsMS0FaBfZPAS61wkY"
+    # Install_Jq
     Check_Docker
     Start_SonicDatabase
     Start_SonicServer
+    Config_SonicServer_Admin
     Start_SonicAgent
+    
 }
 
 Start

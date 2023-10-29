@@ -65,7 +65,7 @@ Start_SonicDatabase()
     fi
 }
 
-
+# Config_SonicServer
 Config_SonicServer()
 {
     LAN_Selection
@@ -101,6 +101,73 @@ Start_SonicServer()
     docker-compose -f docker-compose-zh.yml up -d
 }
 
+Config_SonicServer_Admin()
+{
+    register_url="http://$sonic_server_host:3000/server/api/controller/users/register"
+    
+    data='{"userName":"admin", "password":"admin", "role": 2}'
+
+    response=$(curl -s -X POST -H "Content-Type: application/json" -d "$data" "$register_url")
+
+    http_status=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Content-Type: application/json" -d "$data" "$register_url")
+
+    if [ "$http_status" -eq 200 ];then
+        if [[ "$response" == *"failed"* ]];then
+            if [[ "$response" != *"User name already exists"* ]];then
+                Echo_Red "Error: $response."
+                exit 1
+            fi
+        fi
+    else
+        Echo_Red "Error: Sonic server may not be started."
+        exit 1
+    fi
+
+    Echo_Green "[sonic-server] Please use the following account 'user=admin password=admin'"
+}
+
+Get_SonicAgent_SecretKey()
+{
+    agents_list_url="http://$sonic_server_host:3000/server/api/controller/agents/list"
+
+    response=$(curl -s -X GET -H "Content-Type: application/json" -H "SonicToken: $sonic_server_token" "$agents_list_url")
+
+    http_status=$(curl -s -o /dev/null -w "%{http_code}" -X GET -H "Content-Type: application/json" -H "SonicToken: $sonic_server_token" "$agents_list_url")
+
+    if [ "$http_status" -eq 200 ];then
+        agent_secret_key=$(echo "$response" | jq '.data[0].secretKey')
+        if [ -z "$agent_secret_key" ] || [ "$agent_secret_key" == "null" ] ; then 
+            Create_SonicAgent_SecretKey
+        fi
+    else
+        Echo_Red "Error: Sonic server may not be started."
+        exit 1
+    fi
+
+    agent_secret_key=$(echo $agent_secret_key | sed 's/\"//g')
+}
+
+
+# Configure agent key
+Create_SonicAgent_SecretKey() 
+{
+    agents_update_url="http://$sonic_server_host:3000/server/api/controller/agents/update"
+    
+    data='{"id":0,"name":"hub02","highTemp":45,"highTempTime":15,"robotSecret":"","robotToken":"","robotType":-1,"alertRobotIds":null}'
+
+    response=$(curl -s -X PUT -H "Content-Type: application/json" -H "SonicToken: $sonic_server_token" -d "$data" "$agents_update_url")
+
+    if [[ "$response" == *'"code":2000'* ]];then
+        Get_SonicAgent_SecretKey
+    elif [[ "$response" != *'"code":2000'* ]];then
+        Echo_Red "Error: $response."
+        exit 1
+    else
+        Echo_Red "Error: Sonic server may not be started."
+        exit 1
+    fi
+}
+
 Config_SonicAgent()
 {
     sonic_agent_env="$cur_dir/sonic-agent/.env"
@@ -111,10 +178,16 @@ Config_SonicAgent()
         exit 1
     fi
 
-    sed -i "s/SONIC_SERVER_HOST=.*/SONIC_SERVER_HOST=${sonic_server_host}/" $sonic_server_env
+    Get_SonicAgent_SecretKey
+
+    Echo_Green "[sonic-agent] secret key: "$agent_secret_key
+
+    sed -i "s/SONIC_SERVER_HOST=.*/SONIC_SERVER_HOST=${sonic_server_host}/" $sonic_agent_env
+   
     # TODO:
     # sed -i "s/MYSQL_HOST=.*/SONIC_SERVER_PORT=3000/" $sonic_server_env
-    sed -i "s/SONIC_AGENT_HOST=.*/SONIC_AGENT_HOST=${sonic_server_host}/" $sonic_server_env
+    sed -i "s/SONIC_AGENT_KEY=.*/SONIC_AGENT_KEY=${agent_secret_key}/" $sonic_agent_env
+    sed -i "s/SONIC_AGENT_HOST=.*/SONIC_AGENT_HOST=${sonic_server_host}/" $sonic_agent_env
 }
 
 Start_SonicAgent()

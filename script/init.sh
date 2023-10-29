@@ -64,6 +64,13 @@ Check_Docker()
         Echo_Green "Docker-compose: OK, version: "$docker_compose_version
     fi
 }
+Install_Jq()
+{
+    echo "====== Installing jq ======"
+    Press_Start
+    Echo_Blue "[+] Installing Jq"
+    $(apt-get install jq)
+}
 
 Install_Curl()
 {
@@ -84,6 +91,17 @@ Install_Curl()
     fi
     Remove_Error_Libcurl
 }
+
+Press_Start()
+{
+    echo ""
+    Echo_Green "Press any key to start...or Press Ctrl+c to cancel"
+    OLDCONFIG=`stty -g`
+    stty -icanon -echo min 1 time 0
+    dd count=1 2>/dev/null
+    stty ${OLDCONFIG}
+}
+
 
 Color_Text()
 {
