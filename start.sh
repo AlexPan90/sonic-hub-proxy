@@ -17,6 +17,7 @@ fi
 SONIC_HUB_Version='1.0'
 . script/init.sh
 . script/main.sh
+. script/hub.sh
 
 clear
 echo "+------------------------------------------------------+"
@@ -25,14 +26,15 @@ echo "+------------------------------------------------------+"
 
 Start()
 {
-    sonic_server_token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiYWRtaW4xMjMiLCI5NjNjMTQxYi1kN2IwLTQ3MGMtYjU5NS05NjgxY2Q3MGE1YzYiXSwiZXhwIjoxNjk5NzcyMTI0fQ.XArq_T_7zZj1Mntg9yIPVzvpScsMS0FaBfZPAS61wkY"
     # Install_Jq
+    Install_Yq
     Check_Docker
     Start_SonicDatabase
     Start_SonicServer
+    Get_SonicServer_AccessToken
     Config_SonicServer_Admin
     Start_SonicAgent
-    
+    Start_SonicHubProxy
 }
 
 Start

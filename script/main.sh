@@ -126,6 +126,31 @@ Config_SonicServer_Admin()
     Echo_Green "[sonic-server] Please use the following account 'user=admin password=admin'"
 }
 
+Get_SonicServer_AccessToken()
+{
+    server_login_url="http://$sonic_server_host:3000/server/api/controller/users/login"
+    
+    data='{"userName":"admin","password":"admin"}'
+
+    response=$(curl -s -X POST -H "Content-Type: application/json" -d "$data" "$server_login_url")
+
+    if [[ "$response" == *'"code":2000'* ]];then
+        sonic_server_token=$(echo $response | jq -r '.data')
+        if [ -z $sonic_server_token ];then
+            Echo_Red "Error: $response."
+            exit 1
+        else
+            Echo_Green "[sonic-server] access_token: "$sonic_server_token
+        fi
+    elif [[ "$response" != *'"code":2000'* ]];then
+        Echo_Red "Error: $response."
+        exit 1
+    else
+        Echo_Red "Error: Sonic server may not be started."
+        exit 1
+    fi
+}
+
 Get_SonicAgent_SecretKey()
 {
     agents_list_url="http://$sonic_server_host:3000/server/api/controller/agents/list"

@@ -64,6 +64,23 @@ Check_Docker()
         Echo_Green "Docker-compose: OK, version: "$docker_compose_version
     fi
 }
+
+Install_Yq()
+{   
+    yq_version=$(yq --version | grep 'version') 
+
+    if [ -z "$yq_version" ];then
+        echo "====== Installing Yq ======"
+        Press_Start
+        Echo_Blue "[+] Installing Yq"
+        wget https://github.com/mikefarah/yq/releases/download/v4.20.2/yq_linux_amd64 \
+        && chmod +x yq_linux_amd64 \
+        && mv yq_linux_amd64 /usr/local/bin/yq
+    fi
+
+    Echo_Green "Installed "$yq_version
+}
+
 Install_Jq()
 {
     echo "====== Installing jq ======"
