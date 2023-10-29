@@ -1,0 +1,17 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: sonic-mysql
+    command:
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - ${MYSQL_VOL_CONFIG}:/etc/mysql/conf.d
+      - ${MYSQL_VOL_DATA}:/var/lib/mysql
+      - ${MYSQL_VOL_LOG}:/var/log/mysql
+    ports:
+      - ${MYSQL_PORT}:3306
